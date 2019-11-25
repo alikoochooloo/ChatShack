@@ -13,49 +13,82 @@ public class bigG extends JFrame{
 
     private Font font;
     private Font bigFont;
-    private JTextArea tf1; 
-    private JTextField tf2;
-    private JButton respect;
+    private JTextArea comment, content;
+    private JButton respect, connectivity;
+    private ListenForButton lfb; 
+    private JPanel p;
+    private JPanel poo;
+    private boolean concheck = true;
     public static void main(String[] aargs){
         new bigG();
     }
 
     public bigG(){
-        Toolkit tk = Toolkit.getDefaultToolkit();      
-        Dimension dim = tk.getScreenSize(); 
-        this.setSize(1200, 1000);
+        // Toolkit tk = Toolkit.getDefaultToolkit();      
+        // Dimension dim = tk.getScreenSize(); 
+        this.setSize(1000, 800);
         this.setLocationRelativeTo(null);        
         this.setTitle("Whacha Thinking");
         font = new Font("Times New Roman", Font.PLAIN, 20);
         bigFont = new Font("Times New Roman", Font.BOLD, 30); 
         // JPanel p = new JPanel(new GridLayout(0,2)); 
-        JPanel p = new JPanel();
-        JPanel poo = new JPanel();
+        p = new JPanel();
+        poo = new JPanel();
         p.setBackground(Color.lightGray);
 
-        tf1 = new JTextArea(20,20);
-        // tf1.setSize(200, 200);
-        // tf1.resize(200, 200);
-        tf1.setToolTipText("put in the weight");
-        tf1.setFont(font); 
-        p.add(tf1);
+        comment = new JTextArea(4,50);
+        // comment.setSize(200, 200);
+        // comment.resize(200, 200);
+        comment.setToolTipText("type your comment");
+        comment.setFont(font); 
+        p.add(comment);
 
-        tf2 = new JTextField("",20);
-        tf2.setToolTipText("put in the weight");
-        tf2.setFont(font); 
-        poo.add(tf2);
+        content = new JTextArea(25,60);
+        content.setEditable(false);
+        content.setToolTipText("content");
+        content.setFont(font); 
+        poo.add(content);
+
+        lfb = new ListenForButton();
 
         this.respect = new JButton("press F to respect");
-        respect.setToolTipText("Deletes the pickup of the specified ID. Cannot be undone, but can be re-added");
-        // respect.addActionListener(lfb);
+        respect.setToolTipText("yeet you dickwad");
+        respect.addActionListener(lfb);
         respect.setFont(font);
         p.add(respect);
 
-        this.add(p); 
+        this.connectivity = new JButton();
+        connectivity.setText("Join");
+        connectivity.addActionListener(lfb);
+        connectivity.setToolTipText("join you dickwad");
+        connectivity.setFont(font);
+        p.add(connectivity);
 
-        this.add(poo);
+        this.add(p,BorderLayout.SOUTH); 
+
+        this.add(poo,BorderLayout.NORTH);
         // this.pack();
         this.setVisible(true);
+    }
+
+    private class ListenForButton implements ActionListener{
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == respect) {
+                System.out.println(connectivity.getText());
+            }
+            else if (e.getSource() == connectivity) {
+                if (concheck){
+                    connectivity.setText("Leave");
+                    System.out.println("yes");
+                    concheck = false;
+                }
+                else {                    
+                    System.out.println("no");
+                    concheck = true;
+                    connectivity.setText("Join");
+                }
+            }
+        }
     }
 
 
