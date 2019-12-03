@@ -2,12 +2,17 @@
 big GUI for chatshack
 */
 import javax.swing.*;
+
+import org.omg.CORBA.portable.OutputStream;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.*;
 import java.awt.event.*; //user clicking buttons
 import java.util.Calendar;
 import java.util.Date;
+import java.net.*;
+
 
 public class bigG extends JFrame{
 
@@ -19,9 +24,20 @@ public class bigG extends JFrame{
     private JPanel p;
     private JPanel poo;
     private boolean concheck = true;
-    public static void main(String[] aargs){
+    public Socket client;
+    // public OutputStream toClient = null;
+    public static void main(String[] args){
+        // this.client = client
         new bigG();
     }
+
+    public void runGui(Socket client){
+        this.client = client;
+        // toClient = new BufferedOutputStream(client.getOutputStream());
+        new bigG();
+
+    } 
+
 
     public bigG(){
         // Toolkit tk = Toolkit.getDefaultToolkit();      
@@ -71,21 +87,30 @@ public class bigG extends JFrame{
         this.setVisible(true);
     }
 
-    private class ListenForButton implements ActionListener{
+    public class ListenForButton implements ActionListener{
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == respect) {
-                System.out.println(connectivity.getText());
+                System.out.println(comment.getText());
+                if(!comment.getText().equals("")){
+                    content.append("you: " + comment.getText() + "\n");
+                    comment.setText("");
+                    // functionality to send text to client
+                    // client.
+                    
+                }
             }
             else if (e.getSource() == connectivity) {
                 if (concheck){
                     connectivity.setText("Leave");
                     System.out.println("yes");
                     concheck = false;
+                    // functionality to join
                 }
                 else {                    
                     System.out.println("no");
                     concheck = true;
                     connectivity.setText("Join");
+                    // functionality to leave
                 }
             }
         }

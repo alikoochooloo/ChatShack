@@ -8,7 +8,7 @@ import java.io.*;
 
 public class ShackClient
 {
-	public static final int DEFAULT_PORT = 6007;
+	public static final int DEFAULT_PORT = 1337;
 	
 	public static void main(String[] args) throws IOException {
 		if (args.length != 1) {
