@@ -29,6 +29,7 @@ public class ChatShackServer {
             sock = new ServerSocket(DEFAULT_PORT);
             try {
 
+                //establish the OutGoingConnection object. This is the broadcast thread responsible for forwarding messages to clients
                 Runnable outgoing = new outGoingConnection(messageList, users);
                 exec.execute(outgoing);
 
