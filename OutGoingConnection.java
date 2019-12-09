@@ -15,8 +15,9 @@ import java.io.*;
 
 public class outGoingConnection implements Runnable
 {
+    public static final int BUFFER_SIZE = 4096;
     private HashMap userConnections;
-    private Vector messageList; 
+    private java.util.Vector<E> messageList; 
 
     public outGoingConnection(Vector messages, HashMap usersConnections){
         this.messageList = messages;
@@ -28,11 +29,34 @@ public class outGoingConnection implements Runnable
             // sleep for 1/10th of a second
             try { Thread.sleep(100); } catch (InterruptedException ignore) { }
 
+
             /**
              * check if there are any messages in the Vector. If so, remove them
              * and broadcast the messages to the correct locations 
              * (based on the message 'dest' field, and the corresponding HashMap values)
              */
+
+            while(!(messageList.isEmpty())){
+                curMsg = messageList.remove(0);
+
+
+                //Sort out message pieces:
+				int firstBar = msgIn.indexOf("|");
+				int secondBar = msgIn.indexOf("|", firstBar+ 1);
+				int thirdBar = msgIn.indexOf("|", secondBar + 1);
+				int line1End = msgIn.indexOf("\r\n");
+
+				String command = msgIn.substring(0, firstBar);
+				String requestedUserName = msgIn.substring(firstBar + 1, secondBar); 
+
+				//just realized I only need the below line of code for the broadcast thread. 
+				String destination = msgIn.substring(secongBar + 1, thirdBar);
+
+
+
+            }
+
+
         }
     }
 } 
