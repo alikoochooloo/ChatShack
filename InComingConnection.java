@@ -17,17 +17,16 @@ public class InComingConnection implements Runnable
 	private Socket	client;
 	public static final int BUFFER_SIZE = 4096;
 
-	private Vector messageList;
-	private HashMap userConnections;
+	private Vector<String> messageList;
+	private HashMap<String, BufferedOutputStream> userConnections;
 	private String usrname;
 	
-	public InComingConnection(Socket client, Vector messageList, Hashmap userConnections) {
+	public InComingConnection(Socket client, Vector<String> messageList, HashMap<String, BufferedOutputStream> userConnections) {
 		this.client = client;
 		this.messageList = messageList;
 		this.userConnections = userConnections;
 		this.usrname = "";
 	}
-
     /*
      * This method runs in a separate thread.
      */	
@@ -38,9 +37,11 @@ public class InComingConnection implements Runnable
 		BufferedInputStream  fromClient = null;
 		BufferedOutputStream toClient = null;
 
-		String good200 = "";
-		String error400 = "";
-		String error420 = "";
+		//all necessary error messages
+		String good200 = "STAT|200";
+		String error400 = "STAT|400";
+		String error420 = "STAT|420";
+		String error421 = "STAT|421";
 
 		try {
 			//Open data streams
@@ -55,57 +56,51 @@ public class InComingConnection implements Runnable
 			 * Make sure to update the vector with all relevant messages
 			 */
 
-			
 			boolean connected = true;
 			while(connected){	
 				//recieve and trim the client string
 				String msgIn = "";
-				numBytes = fromClient.read(buffer);
+				int numBytes = fromClient.read(buffer);
 				msgIn += new String(buffer, 0, numBytes);
 				msgIn = msgIn.trim();
-
-				/* 
-				 * check if the message is a join
-				 * if the join is invalid we send back the appropriate error code
-				 * Only add clients to the hashmap (and messages to the vector) if the join is valid
-				 */
 
 				//Sort out message pieces:
 				int firstBar = msgIn.indexOf("|");
 				int secondBar = msgIn.indexOf("|", firstBar+ 1);
 				int thirdBar = msgIn.indexOf("|", secondBar + 1);
-				int line1End = msgIn.indexOf("\r\n");
 
 				String command = msgIn.substring(0, firstBar);
 				String requestedUserName = msgIn.substring(firstBar + 1, secondBar); 
-
-				//just realized I only need the below line of code for the broadcast thread. 
-				//String destination = msgIn.substring(secongBar + 1, thirdBar);
+				String destination = msgIn.substring(secondBar + 1, thirdBar);
 
 
 				// Handle the JOIN command
 				if(command.equals("JOIN")){
 					boolean goodName = true; 
+					//check if the requested username is already taken
 					if(userConnections.containsKey(requestedUserName)){
 						goodName = false;
 					}
 
-					//figure out how to parse usernames for restricted characters later
+					//check for bad characters in the username
 					//if(requestedUserName.contains("awdadw"))
 
+					//check to see if the username is too long
 					if(requestedUserName.length()>15){
 						goodName = false;
 					}
 
+					//if the username is valid, add the message to the list, add the user to the hashmap, and write back a STAT|200
 					if(goodName){
 						userConnections.put(requestedUserName, toClient);
 						messageList.add(msgIn);
-						this.username = requestedUserName;
+						this.usrname = requestedUserName;
 						byte[] errorBytes = new byte[BUFFER_SIZE];
 						errorBytes = good200.getBytes();
 						int errLen = good200.length();
 						toClient.write(errorBytes, 0, errLen);
 					}
+					//if the username is bad, write back a STAT|420
 					else {
 						byte[] errorBytes = new byte[BUFFER_SIZE];
 						errorBytes = error420.getBytes();
@@ -113,25 +108,47 @@ public class InComingConnection implements Runnable
 						toClient.write(errorBytes, 0, errLen);
 					}
 				}
-
-				else if(command.equals("LEAV")){
-					messageList.add(msgIn);
-					byte[] errorBytes = new byte[BUFFER_SIZE];
-					errorBytes = good200.getBytes();
-					int errLen = good200.length();
-					toClient.write(errorBytes, 0, errLen);
-					connected = false;
-					userConnections.remove(this.usrname);
+				//handle other messages only if this thread has a set username
+				else if(!(this.usrname.equals(""))){
+					//handle private messages
+					if(command.equals("PVMG")){
+						//if that user exists, add the message to the list and send 200
+						if(userConnections.containsKey(destination)){
+							messageList.add(msgIn);
+							byte[] errorBytes = new byte[BUFFER_SIZE];
+							errorBytes = good200.getBytes();
+							int errLen = good200.length();
+							toClient.write(errorBytes, 0, errLen);
+						}
+						//otherwise send back an error 421
+						else{
+							byte[] errorBytes = new byte[BUFFER_SIZE];
+							errorBytes = error421.getBytes();
+							int errLen = error421.length();
+							toClient.write(errorBytes, 0, errLen);
+						}
+					}
+					//handle the LEAV command by adding in the message to the vector, sending back a STAT|200, and closing the conneciton
+					else if(command.equals("LEAV")){
+						messageList.add(msgIn);
+						byte[] errorBytes = new byte[BUFFER_SIZE];
+						errorBytes = good200.getBytes();
+						int errLen = good200.length();
+						toClient.write(errorBytes, 0, errLen);
+						connected = false;
+						userConnections.remove(this.usrname);
+					}
+					//handle the broadcast message by adding in the message to the list and sending back the STAT|200
+					else{
+						messageList.add(msgIn);
+						byte[] errorBytes = new byte[BUFFER_SIZE];
+						errorBytes = good200.getBytes();
+						int errLen = good200.length();
+						toClient.write(errorBytes, 0, errLen);
+					}
 				}
 
-				else if(!(this.usrName.equals(""))){
-					messageList.add(msgIn);
-					byte[] errorBytes = new byte[BUFFER_SIZE];
-					errorBytes = good200.getBytes();
-					int errLen = good200.length();
-					toClient.write(errorBytes, 0, errLen);
-				}
-
+				//otherwise the message is invalid and we send a STAT|400
 				else{
 					byte[] errorBytes = new byte[BUFFER_SIZE];
 					errorBytes = error400.getBytes();

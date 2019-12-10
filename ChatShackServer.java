@@ -20,30 +20,27 @@ public class ChatShackServer {
     public static void main(String[] args) throws IOException {
         ServerSocket sock = null;
         // Vector that holds messages, accessible by all instances of InComingConnection and the single instance of OutGoingConneciton
-        Vector messageList = new Vector(0, 1);
+        Vector<String> messageList = new Vector<String>();
         // Hashmap that stores usernames to output streams
-        HashMap users = new Hashmap();
+        HashMap<String, BufferedOutputStream> users = new HashMap<String, BufferedOutputStream>();
 
         try {
             // establish the socket
             sock = new ServerSocket(DEFAULT_PORT);
-            try {
+            //establish the OutGoingConnection object. This is the broadcast thread responsible for forwarding messages to clients via the vector
+            Runnable outgoing = new OutGoingConnection(messageList, users);
+            exec.execute(outgoing);
 
-                //establish the OutGoingConnection object. This is the broadcast thread responsible for forwarding messages to clients via the vector
-                Runnable outgoing = new outGoingConnection(messageList, users);
-                exec.execute(outgoing);
-
-                while (true) {
-                    //now listen for connections and service the connection in a separate thread
-                    Runnable task = new InComingConnection(sock.accept(), messageList, users);
-                    exec.execute(task);
-                }
-            } catch (ConfigurationException configExcept) {
-                System.err.println(configExcept);
+            while (true) {
+                //now listen for connections and service the connection in a separate thread
+                Runnable task = new InComingConnection(sock.accept(), messageList, users);
+                exec.execute(task);
             }
-        } catch (IOException ioe) {
+        } 
+        catch (IOException ioe) {
             System.err.println(ioe);
-        } finally {
+        } 
+        finally {
             if (sock != null)
                 sock.close();
         }
