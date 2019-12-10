@@ -9,17 +9,19 @@
 
 
 import java.util.HashMap;
-import java.java.util.Vector;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
 import java.net.*;
 import java.io.*;
 
-public class outGoingConnection implements Runnable
+public class OutGoingConnection implements Runnable
 {
     public static final int BUFFER_SIZE = 4096;
-    private HashMap userConnections;
-    private java.util.Vector<E> messageList; 
+    private HashMap<String, BufferedOutputStream> userConnections;
+    private Vector<String> messageList; 
 
-    public outGoingConnection(Vector messages, HashMap usersConnections){
+    public OutGoingConnection(Vector<String> messages, HashMap<String, BufferedOutputStream> usersConnections){
         this.messageList = messages;
         this.userConnections = usersConnections;    
     }
@@ -33,30 +35,48 @@ public class outGoingConnection implements Runnable
             /**
              * check if there are any messages in the Vector. If so, remove them
              * and broadcast the messages to the correct locations 
-             * (based on the message 'dest' field, and the corresponding HashMap values)
-             */
+             **/
 
             while(!(messageList.isEmpty())){
-                curMsg = messageList.remove(0);
 
+                //pop the front most message off the list (because messages get appended, so the front one was sent first)
+                String curMsg = messageList.remove(0);
+
+                //prepare the message to be sent
+                byte[] msgBytes = new byte[BUFFER_SIZE];
+                msgBytes = curMsg.getBytes();
+                int msgLen = curMsg.length();
 
                 //Sort out message pieces:
-				int firstBar = msgIn.indexOf("|");
-				int secondBar = msgIn.indexOf("|", firstBar+ 1);
-				int thirdBar = msgIn.indexOf("|", secondBar + 1);
-				int line1End = msgIn.indexOf("\r\n");
+				int firstBar = curMsg.indexOf("|");
+				int secondBar = curMsg.indexOf("|", firstBar+ 1);
+				int thirdBar = curMsg.indexOf("|", secondBar + 1);
 
-				String command = msgIn.substring(0, firstBar);
-				String requestedUserName = msgIn.substring(firstBar + 1, secondBar); 
-
-				//just realized I only need the below line of code for the broadcast thread. 
-				String destination = msgIn.substring(secongBar + 1, thirdBar);
-
-
-
+				String command = curMsg.substring(0, firstBar);
+                String destination = curMsg.substring(secondBar + 1, thirdBar);
+                
+                // handle all broadcast style messages
+                if(command.equals("JOIN") || command.equals("BDMG") || command.equals("LEAV")){
+                    for (BufferedOutputStream toClient : userConnections.values()) {
+                        try{
+                        toClient.write(msgBytes, 0, msgLen);
+                        }
+                        catch (IOException ioe) {
+                            System.err.println(ioe);
+                        } 
+                    }
+                }
+                // handle private messages
+                else{
+                    BufferedOutputStream pvt = userConnections.get(destination);
+                    try{
+                        pvt.write(msgBytes, 0, msgLen);
+                    }
+                    catch (IOException ioe) {
+                        System.err.println(ioe);
+                    } 
+                }
             }
-
-
         }
     }
 } 
