@@ -7,69 +7,13 @@ import java.net.*;
 import java.io.*;
 import javax.swing.*;
 
-public class ShackClient
+public class ShackClient implements Runnable
 {
-	// public static final int DEFAULT_PORT = 1337;
-	
-	// public static void main(String[] args) throws IOException {
-	// 	if (args.length != 1) {
-	// 		System.err.println("Usage: java EchoClient <echo server>");
-	// 		System.exit(0);
-	// 	}
-		
-	// 	BufferedReader networkBin = null;	// the reader from the network
-	// 	PrintWriter networkPout = null;		// the writer to the network
-	// 	BufferedReader localBin = null;		// the reader from the local keyboard
-	// 	Socket sock = null;			// the socket
-		
-	// 	try {
-	// 		sock = new Socket(args[0], DEFAULT_PORT);
-			
-	// 		// set up the necessary communication channels
-	// 		networkBin = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-	// 		localBin = new BufferedReader(new InputStreamReader(System.in));
-			
-	// 		/**
-	// 		 * a PrintWriter allows us to use println() with ordinary
-	// 		 * socket I/O. "true" indicates automatic flushing of the stream.
-	// 		 * The stream is flushed with an invocation of println()
-	// 		 */
-	// 		networkPout = new PrintWriter(sock.getOutputStream(),true);
-			
-	// 		/**
-	// 		 * Read from the keyboard and send it to the echo server.
-	// 		 * Quit reading when the client enters a period "."
-	// 		 */
-	// 		boolean done = false;
-	// 		while (!done) {
-	// 			String line = localBin.readLine();
-	// 			if (line.equals("."))
-	// 				done = true;
-	// 			else {
-	// 				networkPout.println(line);
-	// 				System.out.println("Server: " + networkBin.readLine());
-	// 			}
-	// 		}
-	// 	}
-	// 	catch (IOException ioe) {
-	// 		System.err.println(ioe);
-	// 	}
-	// 	finally {
-	// 		if (networkBin != null)
-	// 			networkBin.close();
-	// 		if (localBin != null)
-	// 			localBin.close();
-	// 		if (networkPout != null)
-	// 			networkPout.close();
-	// 		if (sock != null)
-	// 			sock.close();
-	// 	}
-	// }
 	Socket server;
 	BufferedReader fromServer;
-	ChatScreen screen;
+	bigG screen;
 
-	public void ReaderThread(Socket server, ChatScreen screen) {
+	public void ReaderThread(Socket server, bigG screen) {
 		this.server = server;
 		this.screen = screen;
 	}
@@ -79,10 +23,39 @@ public class ShackClient
 
 			while (true) {
 				String message = fromServer.readLine();
-				String[] s = message.split("|");
-
-				// now display it on the display area
-				screen.displayMessage(message);
+				String[] first = message.split("\r\n");
+				String[] second = first[0].split("|");
+				String username = "";
+				String content = "";
+				if (second[0].equals("STAT")){
+					if (second[1].equals("420")){
+						content = "last messege did not went through";
+						username = second[0];
+						// dat = "";
+						screen.updatecontent(username, content);
+					}
+					
+				}
+				else{
+					if (second[0].equals("PVMG")){
+						username = second[1]+ " to you";
+						content = first[1];
+					}
+					if (second[0].equals("LEAV")){
+						username = "server";
+						content = second[1] + " left the chat";
+					}
+					if (second[0].equals("JOIN")){
+						username = "server";
+						content = second[1] + " joined the chat";
+					}
+					if (second[0].equals("BDMG")){
+						username = second[1];
+						content = first[1];
+					}
+					screen.updateusers(second[0], username);
+					screen.updatecontent(username, content);
+				}
 			}
 		}
 		catch (IOException ioe) { System.out.println(ioe); }

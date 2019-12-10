@@ -9,31 +9,27 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.*;
 import java.awt.event.*; //user clicking buttons
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.io.*;
 import java.net.*;
+import java.time.*;
 
 
 public class bigG extends JFrame{
 
     private Font font;
-    private Font bigFont;
     private JTextArea comment, content;
     private JButton respect, connectivity;
     private ListenForButton lfb; 
     private JPanel p, poo, pee;
-    // private JPanel ;
-    private boolean concheck = true;
     private JScrollPane scroll1, scroll2;
+    public DefaultComboBoxModel usernames; 
     private JComboBox guys;
-    // public Socket client;
     public Socket annoy;
     public DataOutputStream toServer;
-
-    // public OutputStream toClient = null;
     public static void main(String[] args){
-        // this.client = client
         new bigG();
         /*
         try {
@@ -46,28 +42,17 @@ public class bigG extends JFrame{
 
 			ShackClient.run();
 		}
-		catch (UnknownHostException uhe) { System.out.println(uhe); }
+		// catch (UnknownHostException uhe) { System.out.println(uhe); }
         catch (IOException ioe) { System.out.println(ioe); }
         */
     }
 
-    // public void runGui(Socket client){
-    //     this.client = client;
-    //     // toClient = new BufferedOutputStream(client.getOutputStream());
-    //     new bigG();
-
-    // } 
-
-
     public bigG(){
-        // Toolkit tk = Toolkit.getDefaultToolkit();      
-        // Dimension dim = tk.getScreenSize(); 
         this.setSize(1000, 825);
         this.setLocationRelativeTo(null);        
         this.setTitle("Whacha Thinking");
         font = new Font("Times New Roman", Font.PLAIN, 20);
-        bigFont = new Font("Times New Roman", Font.BOLD, 30); 
-        // JPanel p = new JPanel(new GridLayout(0,2)); 
+        bigFont = new Font("Times New Roman", Font.BOLD, 30);
         p = new JPanel();
         poo = new JPanel();
         pee = new JPanel();
@@ -98,9 +83,8 @@ public class bigG extends JFrame{
         
         lfb = new ListenForButton();
 
-
-        guys = new JComboBox();
-        guys.addItem("all");
+        usernames = new DefaultComboBoxModel(new String[] {"all"});
+        guys = new JComboBox(usernames);
         pee.add(guys);
 
         this.respect = new JButton("press F for respect");
@@ -119,14 +103,31 @@ public class bigG extends JFrame{
         this.add(p,BorderLayout.CENTER); 
         this.add(pee,BorderLayout.SOUTH);
         this.add(poo,BorderLayout.NORTH);
-        // this.pack();
         this.setVisible(true);
     }
 
+    public void updatecontent(String username, String content){
+        this.content.append(username + ": "+ content + "\n");
+    }
+
+    public void updateusers(String stat, String username){
+        if (stat.equals("LEAVE")){
+            if(usernames.getIndexOf(username) != -1 ) {
+                usernames.removeElement(username);
+            }
+        }
+        else{
+            if(usernames.getIndexOf(username) == -1 ) {
+                usernames.addElement(username);
+            }
+        }
+
+    }
+
     public class ListenForButton implements ActionListener{
+        date
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == respect) {
-                // System.out.println(comment.getText());
                 if(!comment.getText().equals("")){
                     content.append("you: " + comment.getText() + "\n");
                     comment.setText("");
@@ -138,10 +139,8 @@ public class bigG extends JFrame{
                 }
             }
             else if (e.getSource() == connectivity) {
-                if (concheck){
+                if (connectivity.getText().equals("Join")){
                     connectivity.setText("Leave");
-                    // System.out.println("yes");
-                    concheck = false;
                     // functionality to join
                     // username = comment.getText()
                     // date = 
@@ -149,17 +148,21 @@ public class bigG extends JFrame{
                     // toServer.write(result.getBytes());
                 }
                 else {                    
-                    // System.out.println("no");
-                    concheck = true;
                     connectivity.setText("Join");
                     // functionality to leave
-                    // result = "LEAV|username|all|date"
+                    username = comment.getText();
+                    to = guys.getSelectedItem();
+                    // result = "LEAV|+username+|+to+|date"
                     // toServer.write(result.getBytes());
                 }
             }
         }
     }
-
+    private static Date getCurrentUtcTime() throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return simpleDateFormat.format(new Date());
+    }
 
     
 }
