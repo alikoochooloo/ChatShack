@@ -3,8 +3,6 @@ big GUI for chatshack
 */
 import javax.swing.*;
 
-import org.omg.CORBA.portable.OutputStream;
-
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.*;
@@ -29,11 +27,11 @@ public class bigG extends JFrame{
     private JScrollPane scroll1, scroll2;
     public DefaultComboBoxModel usernames; 
     private JComboBox guys;
-    public Socket annoy;
-    public DataOutputStream toServer;
-    public String ourusername;
+    public static Socket annoy;
+    public static DataOutputStream toServer;
+    public static String ourusername;
 
-    public void main(String[] args){
+    public static void main(String[] args){
         // new bigG();
         
         try {
@@ -168,7 +166,7 @@ public class bigG extends JFrame{
                     connectivity.setText("Join");
                     // functionality to leave
                     // ourusername = comment.getText();
-                    String to = guys.getSelectedItem().toString();
+                    //String to = guys.getSelectedItem().toString();
                     String result = "LEAV|"+ourusername+"|all|"+date+"\r\n";
                     try{
                         toServer.write(result.getBytes());

@@ -18,11 +18,12 @@ public class ShackClient implements Runnable
 		this.screen = screen;
 	}
 	public void run() {
+
 		try {
 			fromServer = new BufferedInputStream(server.getInputStream());
 
 			while (true) {
-				byte[] buffer = new byte[BUFFER_SIZE];
+				byte[] buffer = new byte[4096];
 				String msgIn = "";
 				int numBytes = fromServer.read(buffer);
 				msgIn += new String(buffer, 0, numBytes);
