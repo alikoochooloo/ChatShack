@@ -38,14 +38,16 @@ public class OutGoingConnection implements Runnable
              **/
 
             while(!(messageList.isEmpty())){
-
+                System.out.println("entered the loop");
                 //pop the front most message off the list (because messages get appended, so the front one was sent first)
                 String curMsg = messageList.remove(0);
+
+                System.out.println(curMsg);
 
                 //prepare the message to be sent
                 byte[] msgBytes = new byte[BUFFER_SIZE];
                 msgBytes = curMsg.getBytes();
-                int msgLen = curMsg.length();
+                int msgLen = msgBytes.length;
 
                 //Sort out message pieces:
 				int firstBar = curMsg.indexOf("|");
@@ -59,7 +61,10 @@ public class OutGoingConnection implements Runnable
                 if(command.equals("JOIN") || command.equals("BDMG") || command.equals("LEAV")){
                     for (BufferedOutputStream toClient : userConnections.values()) {
                         try{
+                        System.out.println("writing message");
                         toClient.write(msgBytes, 0, msgLen);
+                        toClient.flush();
+                        System.out.println("writen message");
                         }
                         catch (IOException ioe) {
                             System.err.println(ioe);

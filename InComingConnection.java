@@ -31,7 +31,6 @@ public class InComingConnection implements Runnable
      * This method runs in a separate thread.
      */	
 	public void run() { 
-		byte[] buffer = new byte[BUFFER_SIZE];
 		
 		// declaring data some streams
 		BufferedInputStream  fromClient = null;
@@ -58,6 +57,8 @@ public class InComingConnection implements Runnable
 
 			boolean connected = true;
 			while(connected){	
+				toClient.flush();
+				byte[] buffer = new byte[BUFFER_SIZE];
 				//recieve and trim the client string
 				String msgIn = "";
 				int numBytes = fromClient.read(buffer);
@@ -97,14 +98,14 @@ public class InComingConnection implements Runnable
 						this.usrname = requestedUserName;
 						byte[] errorBytes = new byte[BUFFER_SIZE];
 						errorBytes = good200.getBytes();
-						int errLen = good200.length();
+						int errLen = errorBytes.length;
 						toClient.write(errorBytes, 0, errLen);
 					}
 					//if the username is bad, write back a STAT|420
 					else {
 						byte[] errorBytes = new byte[BUFFER_SIZE];
 						errorBytes = error420.getBytes();
-						int errLen = error420.length();
+						int errLen = errorBytes.length;
 						toClient.write(errorBytes, 0, errLen);
 					}
 				}
@@ -117,14 +118,14 @@ public class InComingConnection implements Runnable
 							messageList.add(msgIn);
 							byte[] errorBytes = new byte[BUFFER_SIZE];
 							errorBytes = good200.getBytes();
-							int errLen = good200.length();
+							int errLen = errorBytes.length;
 							toClient.write(errorBytes, 0, errLen);
 						}
 						//otherwise send back an error 421
 						else{
 							byte[] errorBytes = new byte[BUFFER_SIZE];
 							errorBytes = error421.getBytes();
-							int errLen = error421.length();
+							int errLen = errorBytes.length;
 							toClient.write(errorBytes, 0, errLen);
 						}
 					}
@@ -133,7 +134,7 @@ public class InComingConnection implements Runnable
 						messageList.add(msgIn);
 						byte[] errorBytes = new byte[BUFFER_SIZE];
 						errorBytes = good200.getBytes();
-						int errLen = good200.length();
+						int errLen = errorBytes.length;
 						toClient.write(errorBytes, 0, errLen);
 						connected = false;
 						userConnections.remove(this.usrname);
@@ -143,7 +144,7 @@ public class InComingConnection implements Runnable
 						messageList.add(msgIn);
 						byte[] errorBytes = new byte[BUFFER_SIZE];
 						errorBytes = good200.getBytes();
-						int errLen = good200.length();
+						int errLen = errorBytes.length;
 						toClient.write(errorBytes, 0, errLen);
 					}
 				}
@@ -152,7 +153,7 @@ public class InComingConnection implements Runnable
 				else{
 					byte[] errorBytes = new byte[BUFFER_SIZE];
 					errorBytes = error400.getBytes();
-					int errLen = error400.length();
+					int errLen = errorBytes.length;
 					toClient.write(errorBytes, 0, errLen);
 				}
 			}
