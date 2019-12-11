@@ -15,6 +15,8 @@ import java.util.Date;
 import java.io.*;
 import java.net.*;
 import java.time.*;
+import java.util.TimeZone;
+import java.text.SimpleDateFormat;
 
 
 public class bigG extends JFrame{
@@ -29,14 +31,17 @@ public class bigG extends JFrame{
     private JComboBox guys;
     public Socket annoy;
     public DataOutputStream toServer;
-    public static void main(String[] args){
-        new bigG();
-        /*
+    public String ourusername;
+
+    public void main(String[] args){
+        // new bigG();
+        
         try {
             annoy = new Socket(args[0], 1337);
             toServer = new DataOutputStream(annoy.getOutputStream());
 			bigG win = new bigG();
-			win.displayMessage("My name is " + args[1]);
+            win.updatecontent("you","My name is " + args[1]);
+            ourusername = args[1];
 
 			Thread ShackClient = new Thread(new ShackClient(annoy, win));
 
@@ -44,7 +49,7 @@ public class bigG extends JFrame{
 		}
 		// catch (UnknownHostException uhe) { System.out.println(uhe); }
         catch (IOException ioe) { System.out.println(ioe); }
-        */
+        
     }
 
     public bigG(){
@@ -52,7 +57,7 @@ public class bigG extends JFrame{
         this.setLocationRelativeTo(null);        
         this.setTitle("Whacha Thinking");
         font = new Font("Times New Roman", Font.PLAIN, 20);
-        bigFont = new Font("Times New Roman", Font.BOLD, 30);
+        // bigFont = new Font("Times New Roman", Font.BOLD, 30);
         p = new JPanel();
         poo = new JPanel();
         pee = new JPanel();
@@ -125,44 +130,64 @@ public class bigG extends JFrame{
     }
 
     public class ListenForButton implements ActionListener{
-        date
+        String date = getCurrentUtcTime();
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == respect) {
                 if(!comment.getText().equals("")){
-                    content.append("you: " + comment.getText() + "\n");
+                    String currcomment = comment.getText();
+                    content.append("you: " + currcomment + "\n");
                     comment.setText("");
+                    String to = guys.getSelectedItem().toString();
                     comment.requestFocus();
+                    String s;
+                    if (to.equals("all")){
+                        s = "BDMG";
+                    }
+                    else{
+                        s = "PVMG";
+                    }
                     // functionality to send text to server
-                    // result = "BDMG|username|all|date\r\ncontent\r\n"
-                    // toServer.write(result.getBytes());
-                    
+                    String result = s+"|"+ourusername+"|"+to+"|"+date+"\r\n"+currcomment+"\r\n";
+                    try{
+                        toServer.write(result.getBytes());
+                    }catch(Exception ei){ System.out.println(ei);}
                 }
             }
             else if (e.getSource() == connectivity) {
                 if (connectivity.getText().equals("Join")){
                     connectivity.setText("Leave");
+
                     // functionality to join
                     // username = comment.getText()
-                    // date = 
-                    // result = "JOIN|username|all|date"
-                    // toServer.write(result.getBytes());
+                    String result = "JOIN|"+ourusername+"|all|"+date+"\r\n";
+                    try{
+                        toServer.write(result.getBytes());
+                    }catch(Exception ei){ System.out.println(ei);}
                 }
                 else {                    
                     connectivity.setText("Join");
                     // functionality to leave
-                    username = comment.getText();
-                    to = guys.getSelectedItem();
-                    // result = "LEAV|+username+|+to+|date"
-                    // toServer.write(result.getBytes());
+                    // ourusername = comment.getText();
+                    String to = guys.getSelectedItem().toString();
+                    String result = "LEAV|"+ourusername+"|all|"+date+"\r\n";
+                    try{
+                        toServer.write(result.getBytes());
+                    }catch(Exception ei){ System.out.println(ei);}
                 }
             }
         }
     }
-    private static Date getCurrentUtcTime() throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static String getCurrentUtcTime(){
+        try{
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        // SimpleDateFormat localDateFormat = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
         return simpleDateFormat.format(new Date());
+        }
+        catch(Exception i){
+            System.out.println(i);
+            System.out.println("fuckyou");
+            return null;
+        }
     }
-
-    
 }
