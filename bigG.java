@@ -23,7 +23,7 @@ public class bigG extends JFrame{
     private JTextArea comment, content;
     private JButton respect, connectivity;
     private ListenForButton lfb; 
-    private JPanel p, poo, pee;
+    private JPanel p1, p3, p2;
     private JScrollPane scroll1, scroll2;
     public DefaultComboBoxModel usernames; 
     private JComboBox guys;
@@ -53,59 +53,60 @@ public class bigG extends JFrame{
     public bigG(){
         this.setSize(1000, 825);
         this.setLocationRelativeTo(null);        
-        this.setTitle("Whacha Thinking");
+        this.setTitle("CHaatSHaack");
         font = new Font("Times New Roman", Font.PLAIN, 20);
         // bigFont = new Font("Times New Roman", Font.BOLD, 30);
-        p = new JPanel();
-        poo = new JPanel();
-        pee = new JPanel();
-        p.setBackground(Color.lightGray);
-        poo.setBackground(Color.BLUE);
-        pee.setBackground(Color.ORANGE);
+        p1 = new JPanel();
+        p3 = new JPanel();
+        p2 = new JPanel();
+        p1.setBackground(Color.lightGray);
+        p3.setBackground(Color.BLUE);
+        p2.setBackground(Color.ORANGE);
 
 
         comment = new JTextArea(4,60);
         comment.setToolTipText("type your comment");
         comment.setFont(font); 
         comment.requestFocus();
-        p.add(comment);
+        p1.add(comment);
 
         scroll2 = new JScrollPane(comment);
         scroll2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        p.add(scroll2);
+        p1.add(scroll2);
 
         content = new JTextArea(25,60);
         content.setEditable(false);
         content.setToolTipText("content");
         content.setFont(font); 
-        poo.add(content);
+        p3.add(content);
 
         scroll1 = new JScrollPane(content);
         scroll1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        poo.add(scroll1);
+        p3.add(scroll1);
         
         lfb = new ListenForButton();
 
         usernames = new DefaultComboBoxModel(new String[] {"all"});
         guys = new JComboBox(usernames);
-        pee.add(guys);
+        guys.setToolTipText("select who you want this message to go to");
+        p2.add(guys);
 
-        this.respect = new JButton("press F for respect");
-        respect.setToolTipText("yeet you dickwad");
+        this.respect = new JButton("send");
+        respect.setToolTipText("YEET");
         respect.addActionListener(lfb);
         respect.setFont(font);
-        pee.add(respect);
+        p2.add(respect);
 
         this.connectivity = new JButton();
         connectivity.setText("Join");
         connectivity.addActionListener(lfb);
-        connectivity.setToolTipText("join you dickwad");
+        connectivity.setToolTipText("join the server");
         connectivity.setFont(font);
-        pee.add(connectivity);
+        p2.add(connectivity);
 
-        this.add(p,BorderLayout.CENTER); 
-        this.add(pee,BorderLayout.SOUTH);
-        this.add(poo,BorderLayout.NORTH);
+        this.add(p1,BorderLayout.CENTER); 
+        this.add(p2,BorderLayout.SOUTH);
+        this.add(p3,BorderLayout.NORTH);
         this.setVisible(true);
     }
 
@@ -154,7 +155,7 @@ public class bigG extends JFrame{
             else if (e.getSource() == connectivity) {
                 if (connectivity.getText().equals("Join")){
                     connectivity.setText("Leave");
-
+                    connectivity.setToolTipText("leave the server");
                     // functionality to join
                     // username = comment.getText()
                     String result = "JOIN|"+ourusername+"|all|"+date+"\r\n";
@@ -170,6 +171,7 @@ public class bigG extends JFrame{
                     String result = "LEAV|"+ourusername+"|all|"+date+"\r\n";
                     try{
                         toServer.write(result.getBytes());
+                        System.exit(0);
                     }catch(Exception ei){ System.out.println(ei);}
                 }
             }
