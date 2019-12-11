@@ -28,8 +28,11 @@ public class ShackClient implements Runnable
 				int numBytes = fromServer.read(buffer);
 				msgIn += new String(buffer, 0, numBytes);
 				msgIn = msgIn.trim();
+				System.out.println(msgIn);
+
 				String[] first = msgIn.split("\r\n");
-				String[] second = first[0].split("|");
+				String[] second = first[0].split("\\|");
+				
 				String username = "";
 				String content = "";
 
@@ -41,7 +44,7 @@ public class ShackClient implements Runnable
 						screen.updatecontent(username, content);
 					}
 				}
-				else{
+				else if (!(second[1].equals(bigG.ourusername))){
 					if (second[0].equals("PVMG")){
 						username = second[1]+ " to you";
 						content = first[1];
