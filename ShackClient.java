@@ -9,24 +9,29 @@ import javax.swing.*;
 
 public class ShackClient implements Runnable
 {
-	Socket server;
-	BufferedReader fromServer;
+	private Socket server;
+	private BufferedInputStream fromServer;
 	bigG screen;
 
-	public void ReaderThread(Socket server, bigG screen) {
+	public ShackClient(Socket server, bigG screen) {
 		this.server = server;
 		this.screen = screen;
 	}
 	public void run() {
 		try {
-			fromServer = new BufferedReader(new InputStreamReader(server.getInputStream()));
+			fromServer = new BufferedInputStream(server.getInputStream());
 
 			while (true) {
-				String message = fromServer.readLine();
-				String[] first = message.split("\r\n");
+				byte[] buffer = new byte[BUFFER_SIZE];
+				String msgIn = "";
+				int numBytes = fromServer.read(buffer);
+				msgIn += new String(buffer, 0, numBytes);
+				msgIn = msgIn.trim();
+				String[] first = msgIn.split("\r\n");
 				String[] second = first[0].split("|");
 				String username = "";
 				String content = "";
+
 				if (second[0].equals("STAT")){
 					if (second[1].equals("420")){
 						content = "last messege did not went through";
@@ -34,7 +39,6 @@ public class ShackClient implements Runnable
 						// dat = "";
 						screen.updatecontent(username, content);
 					}
-					
 				}
 				else{
 					if (second[0].equals("PVMG")){
