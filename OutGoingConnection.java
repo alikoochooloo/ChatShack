@@ -76,6 +76,7 @@ public class OutGoingConnection implements Runnable
                     BufferedOutputStream pvt = userConnections.get(destination);
                     try{
                         pvt.write(msgBytes, 0, msgLen);
+                        pvt.flush();
                     }
                     catch (IOException ioe) {
                         System.err.println(ioe);
