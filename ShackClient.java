@@ -37,14 +37,16 @@ public class ShackClient implements Runnable
 				String content = "";
 
 				if (second[0].equals("STAT")){
-					if (second[1].equals("420")){
-						content = "last messege did not went through";
+					if (second[1].equals("421")){
+						content = "receiver of private message does not exist";
 						username = second[0];
 						// dat = "";
 						screen.updatecontent(username, content);
 					}
 				}
 				else if (!(second[1].equals(bigG.ourusername))){
+
+					screen.updateusers(second[0], second[1]);
 					if (second[0].equals("PVMG")){
 						username = second[1]+ " to you";
 						content = first[1];
@@ -61,7 +63,6 @@ public class ShackClient implements Runnable
 						username = second[1];
 						content = first[1];
 					}
-					screen.updateusers(second[0], username);
 					screen.updatecontent(username, content);
 				}
 			}
