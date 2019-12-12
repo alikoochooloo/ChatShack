@@ -13,3 +13,7 @@ java bigG [ip address] [your username]
 ## instructions for the gui
 
 after the gui starts click on join to actually join the chat.
+if you click on send before writing anything in the comment box it will not work.
+once your interface recognizes some other user it will add it to the scroll box next to the send button.
+you can send private messages to other users that you can see in the scroll box.
+once you leave the chat the gui will close and the client program will quit.
