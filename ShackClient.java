@@ -1,6 +1,5 @@
 /**
- * this is the client for chatShack
- * coppied from EchoClient
+ * this is the reader thread of the client 
  */
 
 import java.net.*;

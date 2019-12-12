@@ -1,5 +1,5 @@
 /*
-big GUI for chatshack
+* main thread for the client
 */
 import javax.swing.*;
 
